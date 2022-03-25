@@ -18,28 +18,13 @@ for g in ${PAM_ACCESS_GROUPS}; do
     PAM_ACCESS_STRING+="($g) "
 done
 export PAM_ACCESS_STRING
+
 cat /tmp/access.conf | envsubst > /etc/security/access.conf
 chmod 400 /etc/security/access.conf
 cat /tmp/nslcd.conf | envsubst > /etc/nslcd.conf
 chmod 400 /etc/nslcd.conf
-
-echo "Creating nsswitch.conf file"
-cat >/etc/nsswitch.conf <<EOL
-passwd: compat ldap
-group:  compat ldap
-shadow: files ldap
-gshadow:        files
-
-networks:       files
-
-protocols:      db files
-services:       db files ldap
-ethers: db files
-rpc:    db files
-
-netgroup:       files ldap
-sudoers:        files 
-EOL
+cat /tmp/nsswitch.conf | envsubst > /etc/nsswitch.conf
+chmod 400 /etc/nslcd.conf
 
 echo "Adjusting pam modules"
 sed -i 's/^# account *required *pam_access.so/account required pam_access.so/g' /etc/pam.d/sshd
@@ -47,12 +32,20 @@ sed -i 's/^# account *required *pam_access.so/account required pam_access.so/g' 
 echo "Adjusting sshd_config"
 sed -i "s:^# *AuthorizedKeysFile.*:AuthorizedKeysFile /etc/ssh/ssh_auth_keys/%u:g" /etc/ssh/sshd_config
 
+echo "Make sure scripts are executables"
+find ${SCRIPT_DIR} -name "*.sh" -exec chmod +x {} \;
+echo "Adding run_dir to cron"
+echo "${CRON_SCHEDULE} root run-parts --regex=.*\.sh ${SCRIPT_DIR}" > /etc/cron.d/run_scripts
+
+
 echo "Starting services"
 /etc/init.d/nslcd start
 /etc/init.d/ssh start
-cron -L 4
 
-/etc/cron.daily/ldap_sync.sh
+#This has to be run after starting ssh and nslcd in case the script depends on ahving the LDAP already available
+run-parts --regex=.*\.sh ${SCRIPT_DIR}
+
+cron -L 4
 
 exec "$@"
 

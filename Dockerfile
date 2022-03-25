@@ -24,20 +24,23 @@ ENV \
     BACKUP_GID=1002 \
     BACKUP_HOME=/var/lib/backups \
     BACKUP_DIR="/backups" \
-    LDAP_URI="ldap://scoldap.epfl.ch/" \
+    LDAP_URI="ldaps://scoldap.epfl.ch/" \
     LDAP_BASE="O=epfl,C=ch" \
     PAM_ACCESS_USERS="" \
-    PAM_ACCESS_GROUPS=""
+    PAM_ACCESS_GROUPS="" \
+    SCRIPT_DIR="/scripts" \
+    CRON_SCHEDULE="*/15 * * * *"
 
 EXPOSE 22
 
+VOLUME [ "${SCRIPT_DIR}" ]
 VOLUME [ "${BACKUP_DIR}" ]
 VOLUME [ "/etc/ssh/ssh_auth_keys" ]
 
 
 COPY templates/* /tmp/
-COPY ldap_sync.sh /etc/cron.daily
-RUN chmod +x /etc/cron.daily/ldap_sync.sh
+# COPY ldap_sync.sh /etc/cron.daily
+# RUN chmod +x /etc/cron.daily/ldap_sync.sh
 
 CMD tail -f /var/log/nslcd.log 
 COPY entrypoint.sh /
