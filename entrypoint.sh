@@ -59,7 +59,7 @@ if [[ "${INOTIFY_ENABLE,,}" == "yes" ]]; then
         OPT+=" -e ${e^^}"
     done
     touch ${INOTIFY_LOG_FILE}
-    inotifywait -m -d -o ${INOTIFY_LOG_FILE} --format "${INOTIFY_FMT}" --timefmt "${INOTIFY_TIMEFMT}" ${OPT} ${MONITOR_DIR}
+    inotifywait -m -d -o ${INOTIFY_LOG_FILE} --format "${INOTIFY_FMT}" --timefmt "${INOTIFY_TIMEFMT}" ${OPT} ${BACKUP_DIR}
 fi
 
 cron -L 4
