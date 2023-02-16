@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM ubuntu:22.04
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -7,6 +7,7 @@ RUN apt-get update \
         gettext-base \
 		openssh-server \
         ca-certificates \
+        inotify-tools \
         libnss-ldapd \
         libpam-ldapd \
         nscd \
@@ -25,6 +26,15 @@ ENV \
     PAM_ACCESS_USERS="" \
     PAM_ACCESS_GROUPS="" \
     SCRIPT_DIR="/scripts" \
+    SCRIPT_REGEX="^.*\.sh\$" \
+    RUN_SCRIPTS_ON_STARTUP="NO" \
+    INOTIFY_ENABLE="YES" \
+    INOTIFY_LOG_FILE="/backups/inotify.log" \
+    INOTIFY_FMT="%T %e %w %f" \
+    INOTIFY_TIMEFMT="%Y-%m-%d %H:%M:%S %z" \
+    INOTIFY_EVENTS="CREATE" \
+    INOTIFY_OPTS="-r" \
+    EXTRA_INSTALL="" \
     CRON_SCHEDULE="*/15 * * * *"
 
 EXPOSE 22
@@ -38,7 +48,7 @@ COPY templates/* /tmp/
 # COPY ldap_sync.sh /etc/cron.daily
 # RUN chmod +x /etc/cron.daily/ldap_sync.sh
 
-CMD tail -f /var/log/nslcd.log 
+CMD tail -f ${INOTIFY_LOG_FILE} 
 COPY entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
