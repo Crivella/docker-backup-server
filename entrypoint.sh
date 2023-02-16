@@ -1,10 +1,7 @@
 #!/bin/bash
 
-echo "Creating user"
-groupadd -g ${BACKUP_GID} backups
-useradd  -u ${BACKUP_UID} -g ${BACKUP_GID} -m -d ${BACKUP_HOME} --shell /bin/bash backups
-install -d -m 0750 -o backups -g backups ${BACKUP_HOME}
-chown -R backups:backups ${BACKUP_HOME}
+EXTRA_INSTALL=`echo ${EXTRA_INSTALL} | tr -s "," " "`
+apt-get update && apt-get install -y --no-install-recommends ${EXTRA_INSTALL} 
 
 mkdir /home
 chmod 755 /home

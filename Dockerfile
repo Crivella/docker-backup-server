@@ -11,18 +11,14 @@ RUN apt-get update \
         libpam-ldapd \
         nscd \
         nslcd \
-        rsync \
         locales \
     && rm -rf /var/lib/apt/lists/*
 
 RUN \
     locale-gen en_US.UTF-8 \
-    update-locale en_US.UTF-8
+    && update-locale en_US.UTF-8
 
 ENV \
-    BACKUP_UID=1002 \
-    BACKUP_GID=1002 \
-    BACKUP_HOME=/var/lib/backups \
     BACKUP_DIR="/backups" \
     LDAP_URI="ldaps://scoldap.epfl.ch/" \
     LDAP_BASE="O=epfl,C=ch" \
