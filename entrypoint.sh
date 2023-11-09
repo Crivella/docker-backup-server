@@ -28,6 +28,21 @@ sed -i 's/^# account *required *pam_access.so/account required pam_access.so/g' 
 
 echo "Adjusting sshd_config"
 sed -i "s:^# *AuthorizedKeysFile.*:AuthorizedKeysFile /etc/ssh/ssh_auth_keys/%u:g" /etc/ssh/sshd_config
+sed -i "s:^# *HostKey /etc/ssh/ssh_host_rsa_key:HostKey /etc/ssh/ssh_auth_keys/ssh_host_rsa_key:g" /etc/ssh/sshd_config
+sed -i "s:^# *HostKey /etc/ssh/ssh_host_ecdsa_key:HostKey /etc/ssh/ssh_auth_keys/ssh_host_ecdsa_key:g" /etc/ssh/sshd_config
+sed -i "s:^# *HostKey /etc/ssh/ssh_host_ed25519_key:HostKey /etc/ssh/ssh_auth_keys/ssh_host_ed25519_key:g" /etc/ssh/sshd_config
+if [ ! -f "/etc/ssh/ssh_auth_keys/ssh_host_rsa_key" ]; then
+    mv /etc/ssh/ssh_host_rsa_key* /etc/ssh/ssh_auth_keys
+fi
+if [ ! -f "/etc/ssh/ssh_auth_keys/ssh_host_ecdsa_key" ]; then
+    mv /etc/ssh/ssh_host_ecdsa_key* /etc/ssh/ssh_auth_keys
+fi
+if [ ! -f "/etc/ssh/ssh_auth_keys/ssh_host_ed25519_key" ]; then
+    mv /etc/ssh/ssh_host_ed25519_key* /etc/ssh/ssh_auth_keys
+fi
+chmod 600 /etc/ssh/ssh_auth_keys/ssh_host_*
+chmod 644 /etc/ssh/ssh_auth_keys/ssh_host_*.pub
+
 
 # This allows scripts run through cron to see the ENV variables set in the container
 # https://stackoverflow.com/questions/27771781/how-can-i-access-docker-set-environment-variables-from-a-cron-job
@@ -44,6 +59,15 @@ echo "${CRON_SCHEDULE} root run-parts --regex=${SCRIPT_REGEX} ${SCRIPT_DIR}" > /
 echo "Starting services"
 /etc/init.d/nslcd start
 /etc/init.d/ssh start
+
+# Creaty the inotify log file and dir if they do not exist
+INOTIFY_LOG_DIR=`dirname ${INOTIFY_LOG_FILE}`
+if [[ ! -d "${INOTIFY_LOG_DIR}" ]]; then
+    mkdir -p ${INOTIFY_LOG_DIR}
+fi
+if [[ ! -f "${INOTIFY_LOG_FILE}" ]]; then
+    touch ${INOTIFY_LOG_FILE}
+fi
 
 #This has to be run after starting ssh and nslcd in case the script depends on ahving the LDAP already available
 if [[ "${RUN_SCRIPTS_ON_STARTUP,,}" == "yes" ]]; then

@@ -21,8 +21,8 @@ RUN \
 
 ENV \
     BACKUP_DIR="/backups" \
-    LDAP_URI="ldaps://scoldap.epfl.ch/" \
-    LDAP_BASE="O=epfl,C=ch" \
+    LDAP_URI="" \
+    LDAP_BASE="" \
     PAM_ACCESS_USERS="" \
     PAM_ACCESS_GROUPS="" \
     SCRIPT_DIR="/scripts" \
@@ -40,7 +40,6 @@ ENV \
 EXPOSE 22
 
 VOLUME [ "${SCRIPT_DIR}" ]
-VOLUME [ "${BACKUP_DIR}" ]
 VOLUME [ "/etc/ssh/ssh_auth_keys" ]
 
 
