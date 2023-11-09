@@ -7,8 +7,6 @@ Access is granted only to specific users or users belonging to a specific group.
 
 ## Instructions
 
-
-
 ### Installation
 
 docker pull crivella1/docker-backup-server
@@ -21,7 +19,7 @@ docker pull crivella1/docker-backup-server
 
     NOTE: Path set to `BACKUP_DIR` variable and mounted volume should match
 
-    docker run --name backup-server -v SERVER_SIDE_BACKUP_DIR:BACKUP_DIR -v SERVER_SIDE_SCRIPT_DIR:/scripts -v SSH_AUTH_KEYS_DIR:/etc/ssh/ssh_auth_keys -p XXXXX:22  -h docker-backup-server -t crivella1/docker-backup-server
+    docker run --name backup-server -v HOST_SIDE_BACKUP_DIR:BACKUP_DIR -v HOST_SIDE_SCRIPT_DIR:/scripts -v SSH_AUTH_KEYS_DIR:/etc/ssh/ssh_auth_keys -p XXXXX:22  -h docker-backup-server
 
 ### Host key files
 
